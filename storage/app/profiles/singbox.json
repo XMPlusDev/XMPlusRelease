@@ -1,0 +1,152 @@
+{
+    "log": {
+        "disabled": false,
+        "level": "error",
+        "timestamp": true
+    },
+    "dns": {
+        "servers": [
+            {
+                "tag": "local",
+                "address": "local",
+                "detour": "direct"
+            },
+            {
+                "tag": "resolver",
+                "address": "quic:\/\/223.6.6.6",
+                "strategy": "ipv4_only",
+                "detour": "direct"
+            },
+            {
+                "tag": "cloudflare",
+                "address": "tls:\/\/one.one.one.one",
+                "address_resolver": "resolver",
+                "address_strategy": "ipv4_only",
+                "strategy": "prefer_ipv6",
+                "detour": "select"
+            },
+            {
+                "tag": "fakeip",
+                "address": "fakeip"
+            },
+            {
+                "tag": "block",
+                "address": "rcode:\/\/refused"
+            }
+        ],
+        "rules": [
+            {
+                "outbound": "any",
+                "server": "local"
+            },
+            {
+                "clash_mode": "Global",
+                "server": "cloudflare"
+            },
+            {
+                "clash_mode": "Rule",
+                "server": "cloudflare"
+            },
+            {
+                "clash_mode": "Rule",
+                "server": "fakeip"
+            },
+            {
+                "clash_mode": "Direct",
+                "server": "local"
+            }
+        ],
+        "final": "cloudflare",
+        "fakeip": {
+            "enabled": true,
+            "inet4_range": "198.18.0.0\/15",
+            "inet6_range": "fc00::\/18"
+        },
+        "disable_cache": true,
+        "independent_cache": true
+    },
+    "inbounds": [
+        {
+            "type": "tun",
+            "tag": "in",
+            "address": [
+                "172.18.0.1\/30",
+                "fdfe:dcba:9876::1\/126"
+            ],
+            "auto_route": true,
+            "strict_route": true,
+            "udp_timeout": 60,
+            "stack": "mixed"
+        }
+    ],
+    "outbounds": [
+        {
+            "tag": "select",
+            "type": "selector",
+            "outbounds": [],
+            "interrupt_exist_connections": true
+        },
+        {
+            "tag": "auto",
+            "type": "urltest",
+            "outbounds": [],
+            "url": "https:\/\/cp.cloudflare.com\/generate_204",
+            "interval": "3m",
+            "tolerance": 50,
+            "idle_timeout": "30m",
+            "interrupt_exist_connections": true
+        },
+        {
+            "tag": "direct",
+            "type": "direct"
+        }
+    ],
+    "route": {
+        "rules": [
+            {
+                "inbound": "in",
+                "action": "sniff",
+                "timeout": "1s"
+            },
+            {
+                "protocol": "dns",
+                "action": "hijack-dns"
+            },
+            {
+                "clash_mode": "Direct",
+                "outbound": "direct"
+            },
+            {
+                "clash_mode": "Rule",
+                "outbound": "select"
+            },
+            {
+                "clash_mode": "Rule",
+                "outbound": "direct"
+            },
+            {
+                "clash_mode": "Global",
+                "outbound": "select"
+            },
+            {
+                "protocol": "stun",
+                "action": "reject",
+                "method": "default"
+            },
+            {
+                "ip_is_private": true,
+                "outbound": "direct"
+            }
+        ],
+        "final": "select",
+        "auto_detect_interface": true,
+        "override_android_vpn": true
+    },
+    "experimental": {
+        "cache_file": {
+            "enabled": true,
+            "cache_id": "",
+            "path": "cache.db"
+        }
+    }
+}

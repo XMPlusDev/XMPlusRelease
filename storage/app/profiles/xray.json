@@ -1,0 +1,54 @@
+{
+    "inbounds": [
+        {
+            "tag": "socks",
+            "protocol": "socks",
+            "settings": {
+                "udp": true,
+                "auth": "noauth"
+            },
+            "port": 1080,
+            "listen": "127.0.0.1",
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic",
+                    "fakedns"
+                ],
+                "routeOnly": true
+            }
+        },
+        {
+            "tag": "http",
+            "protocol": "http",
+            "settings": {
+                "udp": true,
+                "auth": "noauth"
+            },
+            "port": 7893,
+            "listen": "127.0.0.1",
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic",
+                    "fakedns"
+                ],
+                "routeOnly": true
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "tag": "direct",
+            "protocol": "freedom"
+        },
+        {
+            "tag": "block",
+            "protocol": "blackhole"
+        }
+    ]
+}

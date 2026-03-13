@@ -1,0 +1,58 @@
+name: Download IPDatabase
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup-ip2location:
+    name: Setup IP2Location Database
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source (with LFS)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          lfs: true
+
+      - name: Download & extract IP2Location database
+        env:
+          IP2LOCATION_TOKEN: ${{ secrets.IP2LOCATION_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          DEST="./storage/app/ip2location"
+          mkdir -p "$DEST"
+
+          # Skip download if database file already exists in repo (via LFS)
+          if compgen -G "$DEST/*.BIN" > /dev/null 2>&1; then
+            echo "IP2Location database already present — skipping download."
+            ls -lh "$DEST"
+          else
+            echo "No database found — downloading IP2Location..."
+            curl -fSL \
+              "https://www.ip2location.com/download/?token=${IP2LOCATION_TOKEN}&file=DB11LITEBINIPV6" \
+              -o /tmp/ip2location.zip
+
+            echo "Extracting to ${DEST}..."
+            unzip -o /tmp/ip2location.zip -d "$DEST"
+            rm /tmp/ip2location.zip
+
+            echo "Contents of ${DEST}:"
+            ls -lh "$DEST"
+
+            echo "Configuring Git LFS and committing..."
+            git lfs install
+            git lfs track "$DEST/*.BIN"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .gitattributes
+            git add "$DEST"
+            git commit -m "chore: add IP2Location database via LFS [skip ci]"
+            git push
+          fi
