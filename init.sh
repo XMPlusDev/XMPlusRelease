@@ -207,7 +207,7 @@ cat > /home/XMPlusPanel/docker-compose.yml <<EOF
 services:
   api:
     container_name: api
-    image: ghcr.io/xmplusdev/xmplus-api:latest
+    image: xmplusdev/xmplus-api:latest
     env_file: .env
     ports:
       - "9000:9000"
@@ -232,7 +232,7 @@ services:
 
   ui:
     container_name: ui
-    image: ghcr.io/xmplusdev/xmplus-ui:latest
+    image: xmplusdev/xmplus-ui:latest
     volumes:
       - ./ecosystem.config.cjs:/app/ecosystem.config.cjs
     ports:
