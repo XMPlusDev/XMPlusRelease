@@ -63,7 +63,7 @@ mariadb() {
 	check_status
 	if [[ $? == 0 ]]; then
 		cd /home/XMPlusPanel
-		docker compose logs -f mariadb
+		docker compose logs -f mariadbxmplus
 	else
 		echo -e "${red}Unable to tail MariaDB logs. Panel is not running.${plain}"
 	fi
@@ -77,7 +77,7 @@ redis() {
 	check_status
 	if [[ $? == 0 ]]; then
 		cd /home/XMPlusPanel
-		docker compose logs -f redis
+		docker compose logs -f redisxmplus
 	else
 		echo -e "${red}Unable to tail Redis logs. Panel is not running.${plain}"
 	fi
