@@ -1,5 +1,5 @@
 #!/bin/bash
-  
+
 red='\033[0;31m'
 green='\033[0;32m'
 yellow='\033[0;33m'
@@ -21,85 +21,95 @@ check_status() {
 	fi
 }
 
+check_install() {
+	if [[ ! -f /etc/systemd/system/XMPlusPanel.service ]]; then
+		echo -e "${red}Panel is not installed. Please run the installer first.${plain}"
+		if [[ $# == 0 ]]; then
+			before_show_menu
+		fi
+		return 1
+	fi
+}
+
 api() {
 	check_status
-	if [[ $? == 1 ]]; then
+	if [[ $? == 0 ]]; then
 		cd /home/XMPlusPanel
 		docker compose logs -f api
 	else
-		echo -e "${red}Unable to tail API logs${plain}"
+		echo -e "${red}Unable to tail API logs. Panel is not running.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 ui() {
 	check_status
-	if [[ $? == 1 ]]; then
+	if [[ $? == 0 ]]; then
 		cd /home/XMPlusPanel
 		docker compose logs -f ui
 	else
-		echo -e "${red}Unable to tail UI logs${plain}"
+		echo -e "${red}Unable to tail UI logs. Panel is not running.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 mariadb() {
 	check_status
-	if [[ $? == 1 ]]; then
+	if [[ $? == 0 ]]; then
 		cd /home/XMPlusPanel
 		docker compose logs -f mariadb
 	else
-		echo -e "${red}Unable to tail Mariadb logs${plain}"
+		echo -e "${red}Unable to tail MariaDB logs. Panel is not running.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 redis() {
 	check_status
-	if [[ $? == 1 ]]; then
+	if [[ $? == 0 ]]; then
 		cd /home/XMPlusPanel
 		docker compose logs -f redis
 	else
-		echo -e "${red}Unable to tail redis logs${plain}"
+		echo -e "${red}Unable to tail Redis logs. Panel is not running.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 npm() {
 	check_status
-	if [[ $? == 1 ]]; then
+	if [[ $? == 0 ]]; then
 		cd /home/XMPlusPanel
 		docker compose logs -f npm
 	else
-		echo -e "${red}Unable to tail npm logs${plain}"
+		echo -e "${red}Unable to tail Nginx Proxy Manager logs. Panel is not running.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 uninstall() {
-    confirm "Are you sure you want to uninstall XMPlus Panel? " "n"
-    if [[ $? != 0 ]]; then
-        if [[ $# == 0 ]]; then
-            show_menu
-        fi
-        return 0
-    fi
-	if [ -e "/etc/systemd/system/" ] ; then
+	confirm "Are you sure you want to uninstall XMPlus Panel? " "n"
+	if [[ $? != 0 ]]; then
+		if [[ $# == 0 ]]; then
+			show_menu
+		fi
+		return 0
+	fi
+	if [ -e "/etc/systemd/system/XMPlusPanel.service" ]; then
 		systemctl stop XMPlusPanel
 		systemctl disable XMPlusPanel
 		rm /etc/systemd/system/XMPlusPanel.service -f
@@ -107,16 +117,32 @@ uninstall() {
 		systemctl reset-failed
 	fi
 	
-    rm /home/XMPlusPanel/ -rf
+	rm /home/XMPlusPanel/ -rf
 	rm -rf /usr/bin/XMPanel -f
+	rm -f /usr/bin/xmpanel
 
-    echo ""
-    echo -e "${green}Panel successfully disabled and remove. If you want to delete this script ${plain}"
-    echo ""
+	echo ""
+	echo -e "${green}Panel successfully disabled and removed.${plain}"
+	echo ""
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
+}
+
+start() {
+	systemctl start XMPlusPanel
+	sleep 2
+	check_status
+	if [[ $? == 0 ]]; then
+		echo -e "${green}Panel started successfully.${plain}"
+	else
+		echo -e "${red}Panel failed to start. Please check the log information.${plain}"
+	fi
+
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 stop() {
@@ -124,14 +150,14 @@ stop() {
 	sleep 2
 	check_status
 	if [[ $? == 1 ]]; then
-		echo -e "${green}Panel successfully stopped${plain}"
+		echo -e "${green}Panel successfully stopped.${plain}"
 	else
-		echo -e "${red}Panel failed to stop, probably because the stop time exceeded two seconds, please check the log information later${plain}"
+		echo -e "${red}Panel failed to stop, probably because the stop time exceeded two seconds. Please check the log information.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 restart() {
@@ -139,58 +165,106 @@ restart() {
 	sleep 2
 	check_status
 	if [[ $? == 0 ]]; then
-		echo -e "${green}Panel restart is successful, please use `xmpanel log` to view the operation log${plain}"
+		echo -e "${green}Panel restarted successfully. Use 'xmpanel log' to view the operation log.${plain}"
 	else
-		echo -e "${red}Panel may fail to start, please use `xmpanel log` to check the log information later${plain}"
+		echo -e "${red}Panel may have failed to start. Use 'xmpanel log' to check the log information.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 status() {
 	systemctl status XMPlusPanel --no-pager -l
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 enable() {
 	systemctl enable XMPlusPanel
 	if [[ $? == 0 ]]; then
-		echo -e "${green}Auto-start paenl on system boot successful${plain}"
+		echo -e "${green}Auto-start panel on system boot enabled successfully.${plain}"
 	else
-		echo -e "${red}Auto-start paenl on system boot failed${plain}"
+		echo -e "${red}Failed to enable panel auto-start on system boot.${plain}"
 	fi
 
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 disable() {
 	systemctl disable XMPlusPanel
 	if [[ $? == 0 ]]; then
-		echo -e "${green}Diable panel auto-start on system boot successfull${plain}"
+		echo -e "${green}Panel auto-start on system boot disabled successfully.${plain}"
 	else
-		echo -e "${red}Diable panel auto-start on system boot failed${plain}"
+		echo -e "${red}Failed to disable panel auto-start on system boot.${plain}"
 	fi
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
 }
 
 show_log() {
-    journalctl -u XMPlusPanel.service -e --no-pager -f
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+	journalctl -u XMPlusPanel.service -e --no-pager -f
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
+}
+
+update() {
+	echo -e "${yellow}Pulling latest Docker images...${plain}"
+	cd /home/XMPlusPanel
+	docker compose pull
+	if [[ $? == 0 ]]; then
+		docker compose up -d
+		echo -e "${green}Panel updated and restarted successfully.${plain}"
+	else
+		echo -e "${red}Failed to pull latest images. Please check your network or image registry.${plain}"
+	fi
+
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
+}
+
+config() {
+	if [[ -f /home/XMPlusPanel/.env ]]; then
+		echo -e "${green}Current configuration (/home/XMPlusPanel/.env):${plain}"
+		echo "--------------------------------------------"
+		cat /home/XMPlusPanel/.env
+		echo "--------------------------------------------"
+	else
+		echo -e "${red}Configuration file not found at /home/XMPlusPanel/.env${plain}"
+	fi
+
+	if [[ $# == 0 ]]; then
+		before_show_menu
+	fi
+}
+
+confirm() {
+	if [[ $# > 1 ]]; then
+		echo && read -p "$1 [${2}]: " temp
+		if [[ x"${temp}" == x"" ]]; then
+			temp=${2}
+		fi
+	else
+		echo && read -p "$1 [y/n]: " temp
+	fi
+	if [[ x"${temp}" == x"y" || x"${temp}" == x"Y" ]]; then
+		return 0
+	else
+		return 1
+	fi
 }
 
 before_show_menu() {
-   echo && echo -n -e "${yellow}Press enter to return to the main menu: ${plain} " && read temp
-   show_menu
+	echo && echo -n -e "${yellow}Press enter to return to the main menu: ${plain}" && read temp
+	show_menu
 }
 
 check_enabled() {
@@ -198,40 +272,41 @@ check_enabled() {
 	if [[ x"${temp}" == x"enabled" ]]; then
 		return 0
 	else
-		return 1;
+		return 1
 	fi
 }
 
 show_status() {
-    check_status
-    case $? in
-        0)
-            echo -e "Panel Status: ${green}Running${plain}"
-            show_enable_status
-            ;;
-        1)
-            echo -e "Panel Status: ${yellow}Not Running${plain}"
-            show_enable_status
-            ;;
-        2)
-            echo -e "Panel Status: ${red}Not Installed${plain}"
-    esac
+	check_status
+	case $? in
+		0)
+			echo -e "Panel Status: ${green}Running${plain}"
+			show_enable_status
+			;;
+		1)
+			echo -e "Panel Status: ${yellow}Not Running${plain}"
+			show_enable_status
+			;;
+		2)
+			echo -e "Panel Status: ${red}Not Installed${plain}"
+	esac
 }
 
 show_enable_status() {
-    check_enabled
-    if [[ $? == 0 ]]; then
-        echo -e "Automatically start on boot: ${green}Yes${plain}"
-    else
-        echo -e "Automatically start on boot: ${red}No${plain}"
-    fi
+	check_enabled
+	if [[ $? == 0 ]]; then
+		echo -e "Automatically start on boot: ${green}Yes${plain}"
+	else
+		echo -e "Automatically start on boot: ${red}No${plain}"
+	fi
 }
 
 show_menu() {
-    echo -e "
-  ${green}XMPlus Panel Management usage method${plain}
+	echo -e "
+  ${green}XMPlus Panel Management${plain}
 
 ————————————————
+  ${green}0.${plain} Show Configuration
   ${green}1.${plain} Update Panel
   ${green}2.${plain} Uninstall Panel
 ————————————————
@@ -239,53 +314,73 @@ show_menu() {
   ${green}4.${plain} Stop Panel
   ${green}5.${plain} Restart Panel
   ${green}6.${plain} View Panel Status
-  ${green}7.${plain} View Panel log
+  ${green}7.${plain} View Panel Log
 ————————————————
-  ${green}8.${plain} Enable Panel auto-satrt
-  ${green}9.${plain} Disable Panel auto-satrt
+  ${green}8.${plain} Enable Panel Auto-Start
+  ${green}9.${plain} Disable Panel Auto-Start
 ————————————————
-  ${green}10.${plain} View panel api docker logs
-  ${green}11.${plain} View panel ui docker logs
-  ${green}12.${plain} View mariadb docker logs
-  ${green}13.${plain} View redis docker logs
-  ${green}14.${plain} View nginx manager docker logs
+  ${green}10.${plain} View API Docker Logs
+  ${green}11.${plain} View UI Docker Logs
+  ${green}12.${plain} View MariaDB Docker Logs
+  ${green}13.${plain} View Redis Docker Logs
+  ${green}14.${plain} View Nginx Proxy Manager Docker Logs
 ————————————————
  "
-    show_status
-    echo && read -p "Please enter selection [0-13]: " num
+	show_status
+	echo && read -p "Please enter selection [0-14]: " num
 
-    case "${num}" in
-        0) config
-        ;;
-        1) check_install && update
-        ;;
-        2) check_install && uninstall
-        ;;
-        3) check_install && start
-        ;;
-        4) check_install && stop
-        ;;
-        5) check_install && restart
-        ;;
-        6) check_install && status
-        ;;
-        7) check_install && show_log
-        ;;
-        8) check_install && enable
-        ;;
-        9) check_install && disable
-        ;;
+	case "${num}" in
+		0) config
+		;;
+		1) check_install && update
+		;;
+		2) check_install && uninstall
+		;;
+		3) check_install && start
+		;;
+		4) check_install && stop
+		;;
+		5) check_install && restart
+		;;
+		6) check_install && status
+		;;
+		7) check_install && show_log
+		;;
+		8) check_install && enable
+		;;
+		9) check_install && disable
+		;;
 		10) check_install && api
-        ;;
+		;;
 		11) check_install && ui
-        ;;
+		;;
 		12) check_install && mariadb
-        ;;
+		;;
 		13) check_install && redis
-        ;;
+		;;
 		14) check_install && npm
-        ;;
-        *) echo -e "${red}Please enter the correct number [0-9]${plain}"
-        ;;
-    esac
+		;;
+		*) echo -e "${red}Please enter the correct number [0-14]${plain}"
+		;;
+	esac
 }
+
+# Entry point — handle CLI args or show interactive menu
+case "$1" in
+	start)         check_install 1 && start 1 ;;
+	stop)          check_install 1 && stop 1 ;;
+	restart)       check_install 1 && restart 1 ;;
+	status)        check_install 1 && status 1 ;;
+	enable)        check_install 1 && enable 1 ;;
+	disable)       check_install 1 && disable 1 ;;
+	log)           check_install 1 && show_log 1 ;;
+	update)        check_install 1 && update 1 ;;
+	config)        config 1 ;;
+	uninstall)     check_install 1 && uninstall 1 ;;
+	api)           check_install 1 && api 1 ;;
+	ui)            check_install 1 && ui 1 ;;
+	redis)         check_install 1 && redis 1 ;;
+	mariadb)       check_install 1 && mariadb 1 ;;
+	npm)           check_install 1 && npm 1 ;;
+	*)             show_menu ;;
+esac
