@@ -222,7 +222,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./.env:/app/.env
-      - ./xmplus.log:/app/storage/logs/xmplus.log
+      - ./logs:/app/storage/logs
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://127.0.0.1:9000/status"]
       interval: 30s
