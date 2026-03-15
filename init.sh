@@ -163,7 +163,7 @@ OCTANE_TASK_MAX_REQUESTS=250
 OCTANE_MAX_CONNECTION=500
 
 # redis
-REDIS_HOST=redis
+REDIS_HOST=redisxmplus
 REDIS_PASSWORD=${REDIS_PASSWORD}
 REDIS_PORT=${REDIS_PORT}
 REDIS_MAX_MEMORY=${REDIS_MAX_MEMORY}
@@ -215,9 +215,9 @@ services:
     networks:
       - app_network
     depends_on:
-      mariadb:
+      mariadbxmplus:
         condition: service_healthy
-      redis:
+      redisxmplus:
         condition: service_healthy
     restart: unless-stopped
     volumes:
@@ -244,8 +244,8 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  mariadb:
-    container_name: mariadb
+  mariadbxmplus:
+    container_name: mariadbxmplus
     image: mariadb:12.2
     environment:
       MYSQL_ROOT_PASSWORD: \${DB_ROOT_PASSWORD}
@@ -268,8 +268,8 @@ services:
       retries: 5
       start_period: 30s
 
-  redis:
-    container_name: redis
+  redisxmplus:
+    container_name: redisxmplus
     image: redis:8.4-alpine
     command: >
       redis-server
@@ -298,7 +298,7 @@ services:
     container_name: phpmyadmin
     image: phpmyadmin:latest
     environment:
-      PMA_HOST: mariadb
+      PMA_HOST: mariadbxmplus
       PMA_PORT: \${DB_PORT:-3306}
       MYSQL_ROOT_PASSWORD: \${DB_ROOT_PASSWORD}
       PMA_ARBITRARY: 0
@@ -308,7 +308,7 @@ services:
     networks:
       - app_network
     depends_on:
-      mariadb:
+      mariadbxmplus:
         condition: service_healthy
     restart: unless-stopped
 
