@@ -395,7 +395,7 @@ echo "   Use 'systemctl start XMPlusPanel' to start the service."
 echo ""
 echo "   Enable port 80, 81, 8081, 443 and ${REDIS_PORT} on your firewall${RESET}"
 
-curl -o /usr/bin/XMPanel -Ls https://raw.githubusercontent.com/XMPlusDev/XMPlusRelease/XMPanel.sh
+curl -o /usr/bin/XMPanel -Ls https://raw.githubusercontent.com/XMPlusDev/XMPlusRelease/scripts/XMPanel.sh
 chmod +x /usr/bin/XMPanel
 ln -s /usr/bin/XMPanel /usr/bin/xmpanel 
 chmod +x /usr/bin/xmpanel
