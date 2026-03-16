@@ -220,7 +220,6 @@ update() {
 	cd /home/XMPlusPanel
 	docker compose pull
 	if [[ $? == 0 ]]; then
-		docker compose down -v
 		docker compose up -d
 		echo -e "${green}Panel updated and restarted successfully.${plain}"
 	else
