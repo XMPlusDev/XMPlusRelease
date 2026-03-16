@@ -416,18 +416,18 @@ while true; do
 done
 
 echo -e "${GREEN}==> Running panel database migrations...${RESET}"
-docker compose exec api php artisan migrate --seed 
+docker exec -it api php artisan migrate --seed 
 echo -e "${GREEN}✅ Migrations complete.${RESET}"
 
 echo -e "${GREEN}==> Creating admin account...${RESET}"
-docker compose exec api php artisan xmplus:create-admin-account
+docker exec -it api php artisan xmplus:create-admin-account
 
 echo ""
 echo -e "${GREEN}✅ Done! XMPlus Panel is fully installed and running. Configure Nginx Proxy Manager{RESET}"
-echo -e "${CYAN}Nginx Proxy:   http://<your-server-ip>:81{RESET}"
+echo -e "${CYAN}Nginx Proxy Manager:   http://<your-server-ip>:81{RESET}"
 echo ""
 echo "Use 'systemctl status XMPlusPanel' to check the service status."
 echo "Use 'systemctl stop XMPlusPanel' to stop the service."
 echo "Use 'systemctl start XMPlusPanel' to start the service."
 echo ""
-echo -e "${YELLOW}Enable port 80, 81, 8081, 443 and ${REDIS_PORT} on your firewall${RESET}"
+echo -e "${YELLOW}Enable port ${RESET}80, 81, 8081, 443 ${YELLOW}and ${RESET}${REDIS_PORT} ${YELLOW}on your firewall${RESET}"
