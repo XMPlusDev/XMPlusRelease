@@ -209,9 +209,6 @@ services:
     container_name: api
     image: xmplusdev/xmplus-api:latest
     env_file: .env
-    ports:
-      - "9000:9000"
-      - "8080:8080"
     networks:
       - app_network
     depends_on:
@@ -235,8 +232,6 @@ services:
     image: xmplusdev/xmplus-ui:latest
     volumes:
       - ./ecosystem.config.cjs:/app/ecosystem.config.cjs
-    ports:
-      - "3005:3005"
     networks:
       - app_network
     depends_on:
@@ -253,8 +248,6 @@ services:
       MYSQL_USER: \${DB_USERNAME}
       MYSQL_PASSWORD: \${DB_PASSWORD}
       MYSQL_TCP_PORT: \${DB_PORT:-3306}
-    ports:
-      - "\${DB_PORT:-3306}:\${DB_PORT:-3306}"
     networks:
       - app_network
     volumes:
