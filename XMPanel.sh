@@ -1,9 +1,15 @@
 #!/bin/bash
 
-red='\033[0;31m'
-green='\033[0;32m'
-yellow='\033[0;33m'
-plain='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log()    { echo -e "${GREEN}[✔]${NC} $1"; }
+warn()   { echo -e "${YELLOW}[!]${NC} $1"; }
+info()   { echo -e "${BLUE}[i]${NC} $1"; }
+error()  { echo -e "${RED}[✘]${NC} $1"; }
 
 CONTAINERS=(
   npm
@@ -36,7 +42,7 @@ check_docker() {
 }
 
 # check root
-[[ $EUID -ne 0 ]] && echo -e "${red}Error: ${plain} This script must be run with the root user！\n" && exit 1
+[[ $EUID -ne 0 ]] && error "This script must be run with the root user！\n" && exit 1
 
 remove_containers() {
   info "Processing containers..."
@@ -94,7 +100,7 @@ check_status() {
 
 check_install() {
 	if [[ ! -f /etc/systemd/system/XMPlusPanel.service ]]; then
-		echo -e "${red}Panel is not installed. Please run the installer first.${plain}"
+		error "Panel is not installed. Please run the installer first"
 		if [[ $# == 0 ]]; then
 			before_show_menu
 		fi
@@ -108,7 +114,7 @@ api() {
 		cd /home/XMPlusPanel
 		docker compose logs -f api
 	else
-		echo -e "${red}Unable to tail API logs. Panel is not running.${plain}"
+		error "Unable to tail API logs. Panel is not running"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -122,7 +128,7 @@ ui() {
 		cd /home/XMPlusPanel
 		docker compose logs -f ui
 	else
-		echo -e "${red}Unable to tail UI logs. Panel is not running.${plain}"
+		error "Unable to tail UI logs. Panel is not running"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -136,7 +142,7 @@ mariadb() {
 		cd /home/XMPlusPanel
 		docker compose logs -f mariadbxmplus
 	else
-		echo -e "${red}Unable to tail MariaDB logs. Panel is not running.${plain}"
+		error "Unable to tail MariaDB logs. Panel is not running"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -150,7 +156,7 @@ redis() {
 		cd /home/XMPlusPanel
 		docker compose logs -f redisxmplus
 	else
-		echo -e "${red}Unable to tail Redis logs. Panel is not running.${plain}"
+		error "Unable to tail Redis logs. Panel is not running"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -164,7 +170,7 @@ npm() {
 		cd /home/XMPlusPanel
 		docker compose logs -f npm
 	else
-		echo -e "${red}Unable to tail Nginx Proxy Manager logs. Panel is not running.${plain}"
+		error "Unable to tail Nginx Proxy Manager logs. Panel is not running"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -199,7 +205,7 @@ uninstall() {
 	remove_images
 
 	echo ""
-	echo -e "${green}Panel successfully disabled and removed.${plain}"
+	log "Panel successfully disabled and removed"
 	echo ""
 
 	if [[ $# == 0 ]]; then
@@ -212,9 +218,9 @@ start() {
 	sleep 2
 	check_status
 	if [[ $? == 0 ]]; then
-		echo -e "${green}Panel started successfully.${plain}"
+		log "Panel started successfully"
 	else
-		echo -e "${red}Panel failed to start. Please check the log information.${plain}"
+		error "Panel failed to start. Please check the log information"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -227,9 +233,9 @@ stop() {
 	sleep 2
 	check_status
 	if [[ $? == 1 ]]; then
-		echo -e "${green}Panel successfully stopped.${plain}"
+		log "Panel successfully stopped"
 	else
-		echo -e "${red}Panel failed to stop, probably because the stop time exceeded two seconds. Please check the log information.${plain}"
+		error "Panel failed to stop, probably because the stop time exceeded two seconds. Please check the log information"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -242,9 +248,9 @@ restart() {
 	sleep 2
 	check_status
 	if [[ $? == 0 ]]; then
-		echo -e "${green}Panel restarted successfully. Use 'xmpanel log' to view the operation log.${plain}"
+		log "Panel restarted successfully. Use 'xmpanel log' to view the operation log"
 	else
-		echo -e "${red}Panel may have failed to start. Use 'xmpanel log' to check the log information.${plain}"
+		error "Panel may have failed to start. Use 'xmpanel log' to check the log information"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -262,9 +268,9 @@ status() {
 enable() {
 	systemctl enable XMPlusPanel
 	if [[ $? == 0 ]]; then
-		echo -e "${green}Auto-start panel on system boot enabled successfully.${plain}"
+		log "Auto-start panel on system boot enabled successfully"
 	else
-		echo -e "${red}Failed to enable panel auto-start on system boot.${plain}"
+		error "Failed to enable panel auto-start on system boot"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -275,9 +281,9 @@ enable() {
 disable() {
 	systemctl disable XMPlusPanel
 	if [[ $? == 0 ]]; then
-		echo -e "${green}Panel auto-start on system boot disabled successfully.${plain}"
+		log "Panel auto-start on system boot disabled successfully"
 	else
-		echo -e "${red}Failed to disable panel auto-start on system boot.${plain}"
+		error "Failed to disable panel auto-start on system boot"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -293,7 +299,7 @@ show_log() {
 }
 
 update() {
-	echo -e "${yellow}Pulling latest Docker images...${plain}"
+	warn "Pulling latest Docker images..."
 	
 	if [[ -f /usr/bin/XMPanel ]]; then
 	  rm -rf /usr/bin/XMPanel /usr/bin/xmpanel 
@@ -309,9 +315,9 @@ update() {
 	if [[ $? == 0 ]]; then
 		docker compose up -d
 		remove_dangling_images
-		echo -e "${green}Panel updated and restarted successfully.${plain}"
+		log "Panel updated and restarted successfully"
 	else
-		echo -e "${red}Failed to pull latest images. Please check your network or image registry.${plain}"
+		error "Failed to pull latest images. Please check your network or image registry"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -321,12 +327,12 @@ update() {
 
 config() {
 	if [[ -f /home/XMPlusPanel/.env ]]; then
-		echo -e "${green}Current configuration (/home/XMPlusPanel/.env):${plain}"
+		log "Current configuration (/home/XMPlusPanel/.env):"
 		echo "--------------------------------------------"
 		cat /home/XMPlusPanel/.env
 		echo "--------------------------------------------"
 	else
-		echo -e "${red}Configuration file not found at /home/XMPlusPanel/.env${plain}"
+		error "Configuration file not found at /home/XMPlusPanel/.env"
 	fi
 
 	if [[ $# == 0 ]]; then
@@ -351,7 +357,7 @@ confirm() {
 }
 
 before_show_menu() {
-	echo && echo -n -e "${yellow}Press enter to return to the main menu: ${plain}" && read temp
+	echo && echo -n -e "${YELLOW}Press enter to return to the main menu: ${NC}" && read temp
 	show_menu
 }
 
@@ -368,50 +374,50 @@ show_status() {
 	check_status
 	case $? in
 		0)
-			echo -e "Panel Status: ${green}Running${plain}"
+			echo -e "Panel Status: ${GREEN}Running${NC}"
 			show_enable_status
 			;;
 		1)
-			echo -e "Panel Status: ${yellow}Not Running${plain}"
+			echo -e "Panel Status: ${YELLOW}Not Running${NC}"
 			show_enable_status
 			;;
 		2)
-			echo -e "Panel Status: ${red}Not Installed${plain}"
+			echo -e "Panel Status: ${RED}Not Installed${NC}"
 	esac
 }
 
 show_enable_status() {
 	check_enabled
 	if [[ $? == 0 ]]; then
-		echo -e "Automatically start on boot: ${green}Yes${plain}"
+		echo -e "Automatically start on boot: ${GREEN}Yes${NC}"
 	else
-		echo -e "Automatically start on boot: ${red}No${plain}"
+		echo -e "Automatically start on boot: ${RED}No${NC}"
 	fi
 }
 
 show_menu() {
 	echo -e "
-  ${green}XMPlus Panel Management${plain}
+  ${GREEN}XMPlus Panel Management${NC}
 
 ————————————————
-  ${green}0.${plain} Show Configuration
-  ${green}1.${plain} Update Panel
-  ${green}2.${plain} Uninstall Panel
+  ${GREEN}0.${NC} Show Configuration
+  ${GREEN}1.${NC} Update Panel
+  ${GREEN}2.${NC} Uninstall Panel
 ————————————————
-  ${green}3.${plain} Start Panel
-  ${green}4.${plain} Stop Panel
-  ${green}5.${plain} Restart Panel
-  ${green}6.${plain} View Panel Status
-  ${green}7.${plain} View Panel Log
+  ${GREEN}3.${NC} Start Panel
+  ${GREEN}4.${NC} Stop Panel
+  ${GREEN}5.${NC} Restart Panel
+  ${GREEN}6.${NC} View Panel Status
+  ${GREEN}7.${NC} View Panel Log
 ————————————————
-  ${green}8.${plain} Enable Panel Auto-Start
-  ${green}9.${plain} Disable Panel Auto-Start
+  ${GREEN}8.${NC} Enable Panel Auto-Start
+  ${GREEN}9.${NC} Disable Panel Auto-Start
 ————————————————
-  ${green}10.${plain} View API Docker Logs
-  ${green}11.${plain} View UI Docker Logs
-  ${green}12.${plain} View MariaDB Docker Logs
-  ${green}13.${plain} View Redis Docker Logs
-  ${green}14.${plain} View Nginx Proxy Manager Docker Logs
+  ${GREEN}10.${NC} View API Docker Logs
+  ${GREEN}11.${NC} View UI Docker Logs
+  ${GREEN}12.${NC} View MariaDB Docker Logs
+  ${GREEN}13.${NC} View Redis Docker Logs
+  ${GREEN}14.${NC} View Nginx Proxy Manager Docker Logs
 ————————————————
  "
 	show_status
@@ -448,7 +454,7 @@ show_menu() {
 		;;
 		14) check_install && npm
 		;;
-		*) echo -e "${red}Please enter the correct number [0-14]${plain}"
+		*) echo -e "${RED}Please enter the correct number [0-14]${NC}"
 		;;
 	esac
 }
