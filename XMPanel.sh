@@ -294,6 +294,16 @@ show_log() {
 
 update() {
 	echo -e "${yellow}Pulling latest Docker images...${plain}"
+	
+	if [[ -f /usr/bin/XMPanel ]]; then
+	  rm -rf /usr/bin/XMPanel /usr/bin/xmpanel 
+	fi
+	 
+	curl -o /usr/bin/XMPanel -Ls https://raw.githubusercontent.com/XMPlusDev/XMPlusRelease/scripts/XMPanel.sh
+	chmod +x /usr/bin/XMPanel
+	ln -s /usr/bin/XMPanel /usr/bin/xmpanel 
+	chmod +x /usr/bin/xmpanel
+	
 	cd /home/XMPlusPanel
 	docker compose pull
 	if [[ $? == 0 ]]; then
