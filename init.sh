@@ -12,6 +12,10 @@ GREEN='\033[0;32m'
 [[ $EUID -ne 0 ]] && echo -e "${RED}Error: ${RESET} This script must be run with the root user！\n" && exit 1
 
 get_script() {
+	if [[ -f /usr/bin/XMPanel ]]; then
+	  rm -rf /usr/bin/XMPanel /usr/bin/xmpanel 
+	fi
+	 
 	curl -o /usr/bin/XMPanel -Ls https://raw.githubusercontent.com/XMPlusDev/XMPlusRelease/scripts/XMPanel.sh
 	chmod +x /usr/bin/XMPanel
 	ln -s /usr/bin/XMPanel /usr/bin/xmpanel 

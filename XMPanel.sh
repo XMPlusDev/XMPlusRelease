@@ -5,8 +5,79 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
+CONTAINERS=(
+  npm
+  ai
+  ui
+  phpmyadmin
+  redis
+  xmplus
+  mariadbxmplus
+)
+
+IMAGES=(
+  xmplusdev/xmplus-api:latest
+  xmplusdev/xmplus-ui:latest
+  mariadb:12.2
+  redis:8.4-alpine
+  phpmyadmin:latest
+  jc21/nginx-proxy-manager:latest
+)
+
+check_docker() {
+  if ! command -v docker &>/dev/null; then
+    error "Docker is not installed or not in PATH."
+    exit 1
+  fi
+  if ! docker info &>/dev/null; then
+    error "Docker daemon is not running."
+    exit 1
+  fi
+}
+
 # check root
 [[ $EUID -ne 0 ]] && echo -e "${red}Error: ${plain} This script must be run with the root user！\n" && exit 1
+
+remove_containers() {
+  info "Processing containers..."
+  for name in "${CONTAINERS[@]}"; do
+    if docker ps -a --format '{{.Names}}' | grep -q "^${name}$"; then
+      # Stop if running
+      if docker ps --format '{{.Names}}' | grep -q "^${name}$"; then
+        docker stop "$name" &>/dev/null
+        warn "Stopped: $name"
+      fi
+      docker rm -f "$name" &>/dev/null
+      log "Removed container: $name"
+    else
+      warn "Container not found, skipping: $name"
+    fi
+  done
+}
+
+remove_images() {
+  info "Processing images..."
+  for image in "${IMAGES[@]}"; do
+    if docker image inspect "$image" &>/dev/null; then
+      docker rmi -f "$image" &>/dev/null
+      log "Removed image: $image"
+    else
+      warn "Image not found, skipping: $image"
+    fi
+  done
+}
+
+remove_dangling_images() {
+  # Remove untagged (dangling) images
+  info "Removing untagged (dangling) images..."
+  dangling=$(docker images -qf "dangling=true")
+  if [[ -n "$dangling" ]]; then
+    echo "$dangling" | xargs docker rmi -f &>/dev/null
+    log "Untagged images removed."
+  else
+    warn "No untagged images found, skipping."
+  fi
+}
 
 check_status() {
 	if [[ ! -f /etc/systemd/system/XMPlusPanel.service ]]; then
@@ -120,6 +191,12 @@ uninstall() {
 	rm /home/XMPlusPanel/ -rf
 	rm -rf /usr/bin/XMPanel -f
 	rm -f /usr/bin/xmpanel
+	
+	#uninstall images and containers
+	check_docker
+	remove_containers
+	remove_dangling_images
+	remove_images
 
 	echo ""
 	echo -e "${green}Panel successfully disabled and removed.${plain}"
@@ -221,6 +298,7 @@ update() {
 	docker compose pull
 	if [[ $? == 0 ]]; then
 		docker compose up -d
+		remove_dangling_images
 		echo -e "${green}Panel updated and restarted successfully.${plain}"
 	else
 		echo -e "${red}Failed to pull latest images. Please check your network or image registry.${plain}"
