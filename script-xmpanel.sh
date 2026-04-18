@@ -22,6 +22,39 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+if systemctl is-active --quiet XMPlusPanel.service 2>/dev/null; then
+    systemctl stop XMPlusPanel.service
+fi
+if systemctl is-enabled --quiet XMPlusPanel.service 2>/dev/null; then
+    systemctl disable XMPlusPanel.service
+fi
+if [ -f "/etc/systemd/system/XMPlusPanel.service" ]; then
+    rm -f /etc/systemd/system/XMPlusPanel.service
+fi
+systemctl daemon-reload
+
+cat > /etc/systemd/system/XMPlusPanel.service <<EOF
+[Unit]
+Description=XMPlusPanel
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/XMPlusPanel
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+echo -e "${GREEN}==> Enabling and starting XMPlusPanel service...${RESET}"
+systemctl daemon-reload
+systemctl enable XMPlusPanel.service
+systemctl start XMPlusPanel.service
 # Remove existing XMPanel Script
 if [[ -f "$INSTALL_PATH" ]]; then
   info "Removing existing XMPanel Script..."
