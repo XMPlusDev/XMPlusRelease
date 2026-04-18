@@ -1,5 +1,5 @@
 #!/bin/bash
- 
+
 set -euo pipefail
 
 # Colors
@@ -55,6 +55,7 @@ echo -e "${GREEN}==> Enabling and starting XMPlusPanel service...${RESET}"
 systemctl daemon-reload
 systemctl enable XMPlusPanel.service
 systemctl start XMPlusPanel.service
+
 # Remove existing XMPanel Script
 if [[ -f "$INSTALL_PATH" ]]; then
   info "Removing existing XMPanel Script..."
