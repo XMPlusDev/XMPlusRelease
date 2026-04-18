@@ -51,7 +51,7 @@ TimeoutStartSec=0
 WantedBy=multi-user.target
 EOF
 
-echo -e "${GREEN}==> Enabling and starting XMPlusPanel service...${RESET}"
+echo -e "${GREEN}==> Enabling and starting XMPlusPanel service...${NC}"
 systemctl daemon-reload
 systemctl enable XMPlusPanel.service
 systemctl start XMPlusPanel.service
