@@ -90,12 +90,12 @@ check_status() {
 		return 2
 	fi
 	
-	temp=$(systemctl status XMPlusPanel | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
-	if [[ x"${temp}" == x"running" ]]; then
-		return 0
-	else
-		return 1
-	fi
+	STATUS=$(docker inspect --format='{{.State.Health.Status}}' api 2>/dev/null || echo "not_found")
+	if [ "$STATUS" = "healthy" ]; then
+        return 0
+    elif [ "$STATUS" = "unhealthy" ]; then
+        return 1
+    fi
 }
 
 check_install() {
