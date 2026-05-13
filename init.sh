@@ -273,8 +273,11 @@ services:
       --requirepass \${REDIS_PASSWORD}
       --port \${REDIS_PORT:-6379}
       --maxmemory ${REDIS_MAX_MEMORY}
-      --maxmemory-policy allkeys-lru
+      --maxmemory-policy noeviction
       --appendonly yes
+      --appendfsync always
+      --save 60 1
+      --save 300 100
       --bind 0.0.0.0
       --protected-mode no
     ports:
