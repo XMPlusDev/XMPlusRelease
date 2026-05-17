@@ -146,7 +146,7 @@ APP_NAME=XMPlus
 APP_ENV=local
 APP_PORT=9000
 APP_KEY=${APP_KEY}
-APP_URL="http://localhost:\${APP_PORT}"
+APP_URL="https://\${API_HOST}"
 SANCTUM_STATEFUL_DOMAINS=localhost:3005
 
 # database
