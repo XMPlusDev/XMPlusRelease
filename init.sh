@@ -144,6 +144,7 @@ echo -e "${GREEN}==> Writing .env file to /home/XMPlusPanel/.env...${RESET}"
 cat > /home/XMPlusPanel/.env <<EOF
 APP_NAME=XMPlus
 APP_ENV=local
+API_HOST=${API_HOST}
 APP_PORT=9000
 APP_KEY=${APP_KEY}
 APP_URL="https://\${API_HOST}"
