@@ -134,7 +134,7 @@ REDIS_PASSWORD=${REDIS_PASSWORD:-$(openssl rand -base64 18 | tr -dc 'A-Za-z0-9' 
 read -p "$(echo -e "${CYAN}Enter a redis port${RESET}     [${YELLOW}(Default: 6379)${RESET}]:          ")" REDIS_PORT
 REDIS_PORT=${REDIS_PORT:-6379}
 
-REDIS_MAX_MEMORY="256mb"
+REDIS_MAX_MEMORY="512mb"
 
 read -p "$(echo -e "${CYAN}Enter a panel api host address to use without http:// or https:// ${RESET}       [${YELLOW}(Example: api.tld.com)${RESET}]:   ")" API_HOST
 API_HOST=${API_HOST:-api.tld.com}
