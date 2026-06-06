@@ -59,8 +59,12 @@ systemctl start XMPlusPanel.service
 # Remove existing XMPanel Script
 if [[ -f "$INSTALL_PATH" ]]; then
   info "Removing existing XMPanel Script..."
-  rm -rf "$INSTALL_PATH" "$SYMLINK_PATH"
-  log "Old files removed."
+  rm -rf "$INSTALL_PATH"
+fi
+
+if [[ -f "$SYMLINK_PATH" ]]; then
+  info "Removing existing XMPanel symlink file..."
+  rm -rf "$SYMLINK_PATH"
 fi
 
 # Download
