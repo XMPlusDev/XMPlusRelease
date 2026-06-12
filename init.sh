@@ -189,6 +189,7 @@ REVERB_PORT=443
 REVERB_SCHEME=https
 
 LOG_DEPRECATIONS_CHANNEL=null
+
 EOF
 
 echo -e "${GREEN}==> Writing ecosystem.config.cjs to /home/XMPlusPanel/ecosystem.config.cjs${RESET}"

@@ -248,6 +248,7 @@ restart() {
 	sleep 2
 	check_status
 	if [[ $? == 0 ]]; then
+		docker exec -it api php artisan config:clear
 		log "Panel restarted successfully. Use 'xmpanel log' to view the operation log"
 	else
 		error "Panel may have failed to start. Use 'xmpanel log' to check the log information"
@@ -315,6 +316,8 @@ update() {
 	if [[ $? == 0 ]]; then
 		docker compose up -d
 		remove_dangling_images
+		docker exec -it api php artisan migrate
+		docker exec -it api php artisan c
 		log "Panel updated and restarted successfully"
 	else
 		error "Failed to pull latest images. Please check your network or image registry"
