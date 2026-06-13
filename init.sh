@@ -233,6 +233,7 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./logs:/app/storage/logs
+	  - ./uploads:/app/storage/public/uploads
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://127.0.0.1:9000/status"]
       interval: 30s
