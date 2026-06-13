@@ -317,7 +317,7 @@ update() {
 		docker compose up -d
 		remove_dangling_images
 		docker exec -it api php artisan migrate
-		docker exec -it api php artisan c
+		docker exec -it api php artisan config:clear
 		log "Panel updated and restarted successfully"
 	else
 		error "Failed to pull latest images. Please check your network or image registry"
