@@ -426,7 +426,7 @@ while true; do
 done
 
 echo -e "${GREEN}==> Running panel database migrations...${RESET}"
-docker exec -it api php artisan migrate --seed 
+docker exec -it api php artisan migrate:fresh --seed 
 echo -e "${GREEN}✅ Migrations complete.${RESET}"
 
 echo -e "${GREEN}==> Creating admin account...${RESET}"
