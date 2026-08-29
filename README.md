@@ -1,3 +1,4 @@
+
 ## Install XMPlus Panel
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/XMPlusDev/XMPlusRelease/scripts/init.sh)
@@ -7,3 +8,5 @@ bash <(curl -Ls https://raw.githubusercontent.com/XMPlusDev/XMPlusRelease/script
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/XMPlusDev/XMPlusRelease/scripts/script-xmpanel.sh)
 ```
+
+[Documentation](https://documentation.xmplus.dev/en/getting-started/introduction)
